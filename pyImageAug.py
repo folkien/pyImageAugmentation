@@ -50,3 +50,4 @@ for (dirpath, dirnames, filenames) in walk(args.input):
     for f in filenames:
         extension = GetExtension(f)
         os.rename(dirpath+f, dirpath+GetShaName()+extension)
+        logging.debug('%s -> %s.' % (dirpath+f, dirpath+GetShaName()+extension))
