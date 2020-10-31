@@ -48,7 +48,9 @@ logging.debug('Logging enabled!')
 f = []
 for (dirpath, dirnames, filenames) in walk(args.input):
     for f in filenames:
-        extension = GetExtension(f)
-        os.rename(dirpath+f, dirpath+GetShaName()+extension)
-        logging.debug('%s -> %s.' % (dirpath+f, dirpath+GetShaName()+extension))
+        extension = GetExtension(f).lower()
+        oldFilepath = dirpath+f
+        newFilepath =  dirpath+GetShaName()+extension
+        os.rename(oldFilepath, newFilepath)
+        logging.debug('%s -> %s.' % (oldFilepath, newFilepath))
     logging.debug("Number of files : %u." % len(filenames))
