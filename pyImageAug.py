@@ -51,3 +51,4 @@ for (dirpath, dirnames, filenames) in walk(args.input):
         extension = GetExtension(f)
         os.rename(dirpath+f, dirpath+GetShaName()+extension)
         logging.debug('%s -> %s.' % (dirpath+f, dirpath+GetShaName()+extension))
+    logging.debug("Number of files : %u." % len(filenames))
