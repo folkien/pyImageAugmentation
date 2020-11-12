@@ -6,6 +6,7 @@ Created on 12 lis 2020
 import cv2
 import numpy as np
 import datetime as dt
+import logging
 
 
 def Rotate(image, angle):
@@ -14,11 +15,13 @@ def Rotate(image, angle):
     rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
     result = cv2.warpAffine(
         image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
+    logging.debug('Rotation by %u.', angle)
     return result
 
 
 def Flip(image):
     ''' Flips image horizontally.'''
+    logging.debug('Flipped horizontaly.')
     return cv2.flip(image, 1)
 
 
