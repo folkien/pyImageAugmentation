@@ -22,8 +22,7 @@ def GetExtension(path):
 
 def CreateOutputDirectory(filepath):
     # Create output path
-    objectDirectory = 'output'
-    path = '%s/%s' % (objectDirectory, filepath)
+    path = '%s' % (filepath)
     Path(path).mkdir(parents=True, exist_ok=True)
 
 
