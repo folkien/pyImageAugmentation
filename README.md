@@ -25,11 +25,12 @@ and mixes of all these methods.
 
 ## Help
 
-`usage: pyImageAug.py [-h] [-i INPUT] [-ar] [-v]`
+```shell
+usage: pyImageAug.py [-h] [-i INPUT] [-ar] [-v]
 
-`optional arguments:`
-  `-h, --help       show this help message and exit`
-  `-i INPUT, --input INPUT`
-             `Input path`
-  `-ar, --augmentation  Process extra image augmentation.`
-  `-v, --verbose     Show verbose finded and processed data`
+optional arguments:
+  -h, --help       show this help message and exit
+  -i INPUT, --input INPUT Input path
+  -ar, --augmentation  Process extra image augmentation.
+  -v, --verbose     Show verbose finded and processed data
+```
