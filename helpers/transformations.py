@@ -74,8 +74,17 @@ def Translate(image, x, y):
     return cv2.warpAffine(image, M, (cols, rows))
 
 
-def Affine(image):
-    ''' image.'''
+def Affine(image, factor=0.1):
+    '''Affine transform image.'''
+    from random import uniform
+    logging.debug('Affine transform %2.2f.', factor)
+    h, w, depth = image.shape
+    pts1 = np.float32([[w*factor, h*factor], [w*(1-factor), h*factor],
+                       [w*factor, h*(1-factor)]])
+    pts2 = np.float32([[w*factor, h*factor], [w*(1-factor)+w*uniform(0, factor), h*factor+h*uniform(0, factor)],
+                       [w*factor+w*uniform(0, factor), h*(1-factor)+h*uniform(0, factor)]])
+    M = cv2.getAffineTransform(pts1, pts2)
+    return cv2.warpAffine(image, M, (w, h))
 
 
 def Perspective(image, factor=0.1):
@@ -116,5 +125,7 @@ def RandomlyTransform(image):
         return Perspective(image, factor=uniform(0.05, 0.3))
     elif (method == 4):
         return Blur(Rotate(image, angle=randint(5, 45)), size=randint(3, 15))
+    elif (method == 5):
+        return Affine(image, factor=uniform(0.05, 0.3))
     else:
         return Flip(Rotate(image, angle=randint(5, 45)))
