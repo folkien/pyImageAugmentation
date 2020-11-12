@@ -5,11 +5,11 @@ Image augumentation for deep learning.
 
 ## Examples of usage
 
-`./pyImageAug.py -i test/`
-
 Renames all image files to SHA-1 format (sha1.jpeg/png)
 
-`./pyImageAug.py -i test/ -a`
+`./pyImageAug.py -i test/`
+
+
 
 Renames all image files to SHA-1 format (sha1.jpeg/png) and creates new augmented files based on original files with random transformations like
 
@@ -22,6 +22,8 @@ Renames all image files to SHA-1 format (sha1.jpeg/png) and creates new augmente
 - affine transformation
 
 and mixes of all these methods.
+
+`./pyImageAug.py -i test/ -a`
 
 ## Help
 
