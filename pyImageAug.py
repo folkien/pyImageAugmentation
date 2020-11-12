@@ -3,7 +3,7 @@ import os
 import sys
 import time
 from helpers.hashing import IsSha1Name
-from helpers.files import GetFilename,RenameToSha1Filepath
+from helpers.files import GetFilename,RenameToSha1Filepath, IsImageFile
 import argparse
 import logging
 from os import walk
@@ -37,7 +37,7 @@ f = []
 for (dirpath, dirnames, filenames) in walk(args.input):
     for f in filenames:
         # Rename only files which has not SHA-1 name
-        if (f not in excludes) and (IsSha1Name(GetFilename(f)) == False): 
+        if (f not in excludes) and (IsImageFile(f)) and (IsSha1Name(GetFilename(f)) == False): 
             RenameToSha1Filepath(f, dirpath)
             
     logging.debug("Number of files : %u." % len(filenames))

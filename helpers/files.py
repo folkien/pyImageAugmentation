@@ -12,13 +12,11 @@ from helpers.hashing import GetRandomSha1
 
 def GetFilename(path):
     ''' Returns filename without extension'''
-    import os
     return os.path.splitext(path)[0]
 
 
 def GetExtension(path):
     ''' Returns extension'''
-    import os
     return os.path.splitext(path)[1]
 
 def CreateOutputDirectory(filepath):
@@ -26,6 +24,10 @@ def CreateOutputDirectory(filepath):
     objectDirectory = 'output'
     path = '%s/%s' % (objectDirectory, filepath)
     Path(path).mkdir(parents=True, exist_ok=True)
+    
+def IsImageFile(filepath):
+    ''' Checks if file is image file.'''
+    return GetExtension(filepath).lower() in [ '.gif', '.png', '.jpg', '.jpeg', '.tiff']
     
 def RenameToSha1Filepath(filename,dirpath):
     ''' Returns new SHA-1 Filepath.'''
