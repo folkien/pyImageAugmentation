@@ -136,6 +136,22 @@ def Contrast(image, alpha=1):
     return cv2.addWeighted(image, alpha, image, 0, 127*(1-alpha))
 
 
+def Saturation(image, factor=1):
+    '''Saturation image.'''
+    logging.debug('Saturation %2.2f.', factor)
+    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    hsv[:, :, 1] = hsv[:, :, 1]*factor
+    return cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
+
+
+def Hue(image, factor=1):
+    '''Hue image.'''
+    logging.debug('Hue %2.2f.', factor)
+    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    hsv[:, :, 0] = hsv[:, :, 0]*factor
+    return cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
+
+
 def RandomlyTransform(image):
     ''' Use random transformation for image augmentation.'''
     from random import seed
@@ -143,7 +159,7 @@ def RandomlyTransform(image):
     from random import uniform
     seed(dt.datetime.utcnow())
 
-    method = randint(0, 10)
+    method = randint(0, 12)
     if (method == 0):
         return Rotate(image, angle=randint(5, 45))
     elif (method == 1):
@@ -164,5 +180,9 @@ def RandomlyTransform(image):
         return Contrast(image, alpha=uniform(0.5, 1.9))
     elif (method == 9):
         return Mosaic(image)
+    elif (method == 10):
+        return Saturation(image, factor=uniform(0.5, 1.5))
+    elif (method == 11):
+        return Hue(image, factor=uniform(0.5, 1.5))
     else:
         return Flip(Rotate(image, angle=randint(5, 45)))
