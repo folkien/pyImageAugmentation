@@ -66,6 +66,13 @@ def Flip(image):
     return cv2.flip(image, 1)
 
 
+def Mirror(image):
+    ''' Mirror image horizontally.'''
+    logging.debug('Mirroring horizontaly.')
+    flipped = cv2.flip(image, 1)
+    return cv2.hconcat([image, flipped])
+
+
 def Translate(image, x, y):
     ''' Translates image.'''
     logging.debug('Translated %u,%u.', x, y)
@@ -107,6 +114,18 @@ def Blur(image, size=10):
     return cv2.blur(image, ksize)
 
 
+def Brightness(image, alpha=1):
+    '''Brightness image.'''
+    logging.debug('Brightness %2.2f.', alpha)
+    return cv2.addWeighted(image, alpha, image, 0, 0)
+
+
+def Contrast(image, alpha=1):
+    '''Contrast image.'''
+    logging.debug('Contrast %2.2f.', alpha)
+    return cv2.addWeighted(image, alpha, image, 0, 127*(1-alpha))
+
+
 def RandomlyTransform(image):
     ''' Use random transformation for image augmentation.'''
     from random import seed
@@ -114,7 +133,7 @@ def RandomlyTransform(image):
     from random import uniform
     seed(dt.datetime.utcnow())
 
-    method = randint(0, 5)
+    method = randint(0, 10)
     if (method == 0):
         return Rotate(image, angle=randint(5, 45))
     elif (method == 1):
@@ -127,5 +146,11 @@ def RandomlyTransform(image):
         return Blur(Rotate(image, angle=randint(5, 45)), size=randint(3, 15))
     elif (method == 5):
         return Affine(image, factor=uniform(0.05, 0.3))
+    elif (method == 6):
+        return Mirror(image)
+    elif (method == 7):
+        return Brightness(image, alpha=uniform(0.2, 1.8))
+    elif (method == 8):
+        return Contrast(image, alpha=uniform(0.2, 1.8))
     else:
         return Flip(Rotate(image, angle=randint(5, 45)))
