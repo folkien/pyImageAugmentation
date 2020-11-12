@@ -29,13 +29,15 @@ else:
     logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 logging.debug('Logging enabled!')
 
+
     
 
+excludes = [ '.', '..', './', '.directory']
 f = []
 for (dirpath, dirnames, filenames) in walk(args.input):
     for f in filenames:
         # Rename only files which has not SHA-1 name
-        if (IsSha1Name(GetFilename(f)) == False): 
+        if (f not in excludes) and (IsSha1Name(GetFilename(f)) == False): 
             RenameToSha1Filepath(f, dirpath)
             
     logging.debug("Number of files : %u." % len(filenames))
