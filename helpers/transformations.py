@@ -8,6 +8,9 @@ import numpy as np
 import datetime as dt
 import logging
 
+''' Color transformations.'''
+''' --------------------------------------'''
+
 
 def AddNoise(image, noise_typ='gauss', var=0.1):
     ''' Add noise to image.'''
@@ -66,6 +69,47 @@ def AddPattern(image, alpha=1.0, columns=10, dotwidth=5):
             cv2.rectangle(patterns, (x1, y1), (x2, y2), [255, 255, 255], -1)
 
     return cv2.addWeighted(image, 1, patterns, alpha, 0)
+
+
+def Blur(image, size=10):
+    '''Blur image.'''
+    logging.debug('Blur %u.', size)
+    # ksize
+    ksize = (size, size)
+    # Using cv2.blur() method
+    return cv2.blur(image, ksize)
+
+
+def Brightness(image, alpha=1):
+    '''Brightness image.'''
+    logging.debug('Brightness %2.2f.', alpha)
+    return cv2.addWeighted(image, alpha, image, 0, 0)
+
+
+def Contrast(image, alpha=1):
+    '''Contrast image.'''
+    logging.debug('Contrast %2.2f.', alpha)
+    return cv2.addWeighted(image, alpha, image, 0, 127*(1-alpha))
+
+
+def Saturation(image, factor=1):
+    '''Saturation image.'''
+    logging.debug('Saturation %2.2f.', factor)
+    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    hsv[:, :, 1] = hsv[:, :, 1]*factor
+    return cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
+
+
+def Hue(image, factor=1):
+    '''Hue image.'''
+    logging.debug('Hue %2.2f.', factor)
+    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    hsv[:, :, 0] = hsv[:, :, 0]*factor
+    return cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
+
+
+''' Shape transformations.'''
+''' --------------------------------------'''
 
 
 def Rotate(image, angle):
@@ -133,41 +177,7 @@ def Perspective(image, factor=0.1):
     return cv2.warpPerspective(image, M, (w, h))
 
 
-def Blur(image, size=10):
-    '''Blur image.'''
-    logging.debug('Blur %u.', size)
-    # ksize
-    ksize = (size, size)
-    # Using cv2.blur() method
-    return cv2.blur(image, ksize)
-
-
-def Brightness(image, alpha=1):
-    '''Brightness image.'''
-    logging.debug('Brightness %2.2f.', alpha)
-    return cv2.addWeighted(image, alpha, image, 0, 0)
-
-
-def Contrast(image, alpha=1):
-    '''Contrast image.'''
-    logging.debug('Contrast %2.2f.', alpha)
-    return cv2.addWeighted(image, alpha, image, 0, 127*(1-alpha))
-
-
-def Saturation(image, factor=1):
-    '''Saturation image.'''
-    logging.debug('Saturation %2.2f.', factor)
-    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-    hsv[:, :, 1] = hsv[:, :, 1]*factor
-    return cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
-
-
-def Hue(image, factor=1):
-    '''Hue image.'''
-    logging.debug('Hue %2.2f.', factor)
-    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-    hsv[:, :, 0] = hsv[:, :, 0]*factor
-    return cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
+''' --------------------------------------'''
 
 
 def RandomlyTransform(image):
@@ -177,32 +187,44 @@ def RandomlyTransform(image):
     from random import uniform
     seed(dt.datetime.utcnow())
 
-    method = randint(0, 12)
+    # Addd shape transformation
+    method = randint(0, 8)
     if (method == 0):
-        return Rotate(image, angle=randint(5, 45))
+        image = Rotate(image, angle=randint(5, 45))
     elif (method == 1):
-        return AddNoise(Flip(image), var=uniform(0.03, 0.15))
+        image = Flip(image)
     elif (method == 2):
-        return Translate(image, x=randint(5, 100), y=randint(5, 100))
+        image = Flip(Rotate(image, angle=randint(5, 45)))
     elif (method == 3):
-        return Perspective(image, factor=uniform(0.05, 0.3))
+        image = Translate(image, x=randint(5, 100), y=randint(5, 100))
     elif (method == 4):
-        return Blur(Rotate(image, angle=randint(5, 45)), size=randint(3, 15))
+        image = Translate(Rotate(image, angle=randint(5, 45)),
+                          x=randint(5, 100), y=randint(5, 100))
     elif (method == 5):
-        return Affine(image, factor=uniform(0.05, 0.3))
+        image = Affine(image, factor=uniform(0.05, 0.3))
     elif (method == 6):
-        return Mirror(image)
+        image = Mirror(image)
     elif (method == 7):
-        return Brightness(image, alpha=uniform(0.5, 1.7))
+        image = Perspective(image, factor=uniform(0.05, 0.3))
     elif (method == 8):
-        return Contrast(image, alpha=uniform(0.5, 1.9))
-    elif (method == 9):
-        return Mosaic(image)
-    elif (method == 10):
-        return Saturation(image, factor=uniform(0.5, 1.5))
-    elif (method == 11):
-        return Hue(image, factor=uniform(0.5, 1.5))
-    elif (method == 12):
-        return AddPattern(image, alpha=uniform(0.5, 0.9), columns=randint(8, 16), dotwidth=randint(8, 40))
-    else:
-        return Flip(Rotate(image, angle=randint(5, 45)))
+        image = Mosaic(image)
+
+    # Addd color transformation
+    method = randint(0, 6)
+    if (method == 0):
+        image = AddNoise(image, var=uniform(0.03, 0.15))
+    elif (method == 1):
+        image = Contrast(image, alpha=uniform(0.5, 1.9))
+    elif (method == 2):
+        image = Blur(image, size=randint(3, 15))
+    elif (method == 3):
+        image = Brightness(image, alpha=uniform(0.5, 1.7))
+    elif (method == 4):
+        image = Saturation(image, factor=uniform(0.5, 1.5))
+    elif (method == 5):
+        image = Hue(image, factor=uniform(0.5, 1.5))
+    elif (method == 6):
+        image = AddPattern(image, alpha=uniform(0.5, 0.9),
+                           columns=randint(8, 16), dotwidth=randint(8, 40))
+
+    return image
