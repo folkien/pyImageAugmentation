@@ -2,26 +2,12 @@
 import os
 import sys
 import time
+from helpers.hashing import IsSha1Name,GetRandomSha1
+from helpers.files import GetExtension,GetFilename
 import argparse
 import logging
 from os import walk
 
-def GetExtension(path):
-    ''' Returns extension'''
-    import os
-    return os.path.splitext(path)[1]
-
-counter = 0
-def GetShaName():
-    '''Create image name'''
-    import hashlib
-    import datetime
-    global counter
-    m = hashlib.sha1()
-    m.update(str(counter).encode('ASCII'))
-    m.update(str(datetime.datetime.now().timestamp()).encode('ASCII'))
-    counter+=1
-    return m.hexdigest()
 
 # Arguments and config
 parser = argparse.ArgumentParser()
@@ -48,9 +34,11 @@ logging.debug('Logging enabled!')
 f = []
 for (dirpath, dirnames, filenames) in walk(args.input):
     for f in filenames:
-        extension = GetExtension(f).lower()
-        oldFilepath = dirpath+f
-        newFilepath =  dirpath+GetShaName()+extension
-        os.rename(oldFilepath, newFilepath)
-        logging.debug('%s -> %s.' % (oldFilepath, newFilepath))
+        # Rename only files which has not SHA-1 name
+        if (IsSha1Name(GetFilename(f)) == False): 
+            extension = GetExtension(f).lower()
+            oldFilepath = dirpath+f
+            newFilepath =  dirpath+GetRandomSha1()+extension
+            os.rename(oldFilepath, newFilepath)
+            logging.debug('%s -> %s.' % (oldFilepath, newFilepath))
     logging.debug("Number of files : %u." % len(filenames))
