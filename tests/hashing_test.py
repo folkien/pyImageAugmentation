@@ -4,7 +4,7 @@ Created on 12 lis 2020
 @author: spasz
 '''
 
-from helpers.hashing import GetHexList,IsSha1Name,GetRandomSha1
+from helpers.hashing import IsSha1Name,GetRandomSha1
 
 def hashing_test():
     ''' Test '''

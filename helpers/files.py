@@ -5,6 +5,9 @@ Created on 10 wrz 2020
 '''
 
 from pathlib import Path
+import os 
+import logging
+from helpers.hashing import GetRandomSha1
 
 
 def GetFilename(path):
@@ -24,6 +27,15 @@ def CreateOutputDirectory(filepath):
     path = '%s/%s' % (objectDirectory, filepath)
     Path(path).mkdir(parents=True, exist_ok=True)
     
-def GetNewShaFilepath():
+def RenameToSha1Filepath(filename,dirpath):
     ''' Returns new SHA-1 Filepath.'''
+    extension = GetExtension(filename).lower()
+    newFilepath = oldFilepath = dirpath+filename
+
+    # Try random hash until find not existsing file
+    while (os.path.isfile(newFilepath) and os.access(newFilepath, os.R_OK)):
+        newFilepath =  dirpath+GetRandomSha1()+extension
+    
+    os.rename(oldFilepath, newFilepath)
+    logging.debug('%s -> %s.' % (oldFilepath, newFilepath))
     

@@ -2,8 +2,8 @@
 import os
 import sys
 import time
-from helpers.hashing import IsSha1Name,GetRandomSha1
-from helpers.files import GetExtension,GetFilename
+from helpers.hashing import IsSha1Name
+from helpers.files import GetFilename,RenameToSha1Filepath
 import argparse
 import logging
 from os import walk
@@ -36,9 +36,6 @@ for (dirpath, dirnames, filenames) in walk(args.input):
     for f in filenames:
         # Rename only files which has not SHA-1 name
         if (IsSha1Name(GetFilename(f)) == False): 
-            extension = GetExtension(f).lower()
-            oldFilepath = dirpath+f
-            newFilepath =  dirpath+GetRandomSha1()+extension
-            os.rename(oldFilepath, newFilepath)
-            logging.debug('%s -> %s.' % (oldFilepath, newFilepath))
+            RenameToSha1Filepath(f, dirpath)
+            
     logging.debug("Number of files : %u." % len(filenames))
