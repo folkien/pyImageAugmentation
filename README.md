@@ -20,6 +20,11 @@ Renames all image files to SHA-1 format (sha1.jpeg/png) and creates new augmente
 - blur
 - flip horizontally
 - affine transformation
+- hue
+- saturation
+- contrast
+- brightness
+- mirror and mosaic
 
 and mixes of all these methods.
 

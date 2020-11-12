@@ -50,6 +50,24 @@ def AddNoise(image, noise_typ='gauss', var=0.1):
         return noisy
 
 
+def AddPattern(image, alpha=1.0, columns=10, dotwidth=5):
+    ''' Adds dot pattern to image.'''
+    logging.debug('Adding pattern %2.2f,%u,%u.', alpha, columns, dotwidth)
+    h, w, depth = image.shape
+    patterns = np.full([h, w, 3], 0, dtype=np.uint8)
+    step = w/columns
+
+    for x in range(columns):
+        x1 = int(x*step - dotwidth)
+        x2 = int(x*step + dotwidth)
+        for y in range(columns):
+            y1 = int(y*step - dotwidth)
+            y2 = int(y*step + dotwidth)
+            cv2.rectangle(patterns, (x1, y1), (x2, y2), [255, 255, 255], -1)
+
+    return cv2.addWeighted(image, 1, patterns, alpha, 0)
+
+
 def Rotate(image, angle):
     ''' Rotate image by angle.'''
     image_center = tuple(np.array(image.shape[1::-1]) / 2)
@@ -184,5 +202,7 @@ def RandomlyTransform(image):
         return Saturation(image, factor=uniform(0.5, 1.5))
     elif (method == 11):
         return Hue(image, factor=uniform(0.5, 1.5))
+    elif (method == 12):
+        return AddPattern(image, alpha=uniform(0.5, 0.9), columns=randint(8, 16), dotwidth=randint(8, 40))
     else:
         return Flip(Rotate(image, angle=randint(5, 45)))
