@@ -1,4 +1,7 @@
+![logo](doc/logo.png)
+
 # pyImageAugmentation
+
 Image augumentation for deep learning.
 
 
