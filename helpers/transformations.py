@@ -73,6 +73,16 @@ def Mirror(image):
     return cv2.hconcat([image, flipped])
 
 
+def Mosaic(image):
+    ''' Mosaic image.'''
+    logging.debug('Mosaic.')
+    h, w, depth = image.shape
+    flipped = cv2.flip(image, 1)
+    mosaic = cv2.hconcat([image, flipped])
+    mosaic = cv2.vconcat([mosaic, mosaic])
+    return cv2.resize(mosaic, (w, h), interpolation=cv2.INTER_AREA)
+
+
 def Translate(image, x, y):
     ''' Translates image.'''
     logging.debug('Translated %u,%u.', x, y)
@@ -149,8 +159,10 @@ def RandomlyTransform(image):
     elif (method == 6):
         return Mirror(image)
     elif (method == 7):
-        return Brightness(image, alpha=uniform(0.2, 1.8))
+        return Brightness(image, alpha=uniform(0.5, 1.7))
     elif (method == 8):
-        return Contrast(image, alpha=uniform(0.2, 1.8))
+        return Contrast(image, alpha=uniform(0.5, 1.9))
+    elif (method == 9):
+        return Mosaic(image)
     else:
         return Flip(Rotate(image, angle=randint(5, 45)))
