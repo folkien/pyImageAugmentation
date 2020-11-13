@@ -3,7 +3,8 @@ import os
 import sys
 from helpers.hashing import IsSha1Name
 from helpers.files import GetFilename, RenameToSha1Filepath, GetNotExistingSha1Filepath, IsImageFile, CreateOutputDirectory
-from helpers.transformations import RandomlyTransform, Mosaic4
+from helpers.transformations import RandomlyTransform, Mosaic4,\
+    RandomColorTransform
 from random import randint
 import argparse
 import logging
@@ -75,6 +76,7 @@ if (len(filenames) >= 4):
         im3 = cv2.imread(dirpath+filenames[randint(0, totalImages-1)])
         im4 = cv2.imread(dirpath+filenames[randint(0, totalImages-1)])
         image = Mosaic4(im1, im2, im3, im4)
+        image = RandomColorTransform(image)
         newName, notused = GetNotExistingSha1Filepath(
             filenames[randint(0, totalImages-1)], dirpath)
         outpath = dirpath+args.output+newName

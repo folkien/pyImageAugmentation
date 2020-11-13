@@ -265,8 +265,7 @@ def Perspective(image, factor=0.1):
 
 #''' --------------------------------------'''
 
-
-def RandomlyTransform(image):
+def RandomShapeTransform(image):
     ''' Use random transformation for image augmentation.'''
     from random import seed
     from random import randint
@@ -295,6 +294,15 @@ def RandomlyTransform(image):
     elif (method == 8):
         image = Mosaic(image)
 
+    return image
+
+
+def RandomColorTransform(image):
+    ''' Use random transformation for image augmentation.'''
+    from random import seed
+    from random import randint
+    from random import uniform
+    seed(dt.datetime.utcnow())
     # Addd color transformation
     method = randint(0, 9)
     if (method == 0):
@@ -318,5 +326,16 @@ def RandomlyTransform(image):
         image = Vignette(image)
     elif (method == 9):
         image = Night(image)
+
+    return image
+
+
+def RandomlyTransform(image):
+    ''' Use random transformation for image augmentation.'''
+    # Addd shape transformation
+    image = RandomShapeTransform(image)
+
+    # Addd color transformation
+    image = RandomColorTransform(image)
 
     return image
