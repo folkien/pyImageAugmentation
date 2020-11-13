@@ -8,8 +8,8 @@ import numpy as np
 import datetime as dt
 import logging
 
-''' Color transformations.'''
-''' --------------------------------------'''
+#''' Color transformations.'''
+#''' --------------------------------------'''
 
 
 def AddNoise(image, noise_typ='gauss', var=0.1):
@@ -108,8 +108,27 @@ def Hue(image, factor=1):
     return cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
 
 
-''' Shape transformations.'''
-''' --------------------------------------'''
+def Rain(image):
+    '''Blurred rain on image.'''
+    from random import randint
+    logging.debug('Rain')
+    h, w, depth = image.shape
+    drops = randint(60, 100)
+    for i in range(drops):
+        size = randint(16, 40)
+        x = randint(size+1, w-size-1)
+        y = randint(size+1, h-size-1)
+        # kernel
+        ksize = (size-1, size-1)
+        # Using cv2.blur() method
+        image[y-size:y+size, x-size:x +
+              size] = cv2.blur(image[y-size:y+size, x-size:x+size], ksize)
+
+    return image
+
+
+#''' Shape transformations.'''
+#''' --------------------------------------'''
 
 
 def Rotate(image, angle):
@@ -177,7 +196,7 @@ def Perspective(image, factor=0.1):
     return cv2.warpPerspective(image, M, (w, h))
 
 
-''' --------------------------------------'''
+#''' --------------------------------------'''
 
 
 def RandomlyTransform(image):
@@ -210,7 +229,7 @@ def RandomlyTransform(image):
         image = Mosaic(image)
 
     # Addd color transformation
-    method = randint(0, 6)
+    method = randint(0, 7)
     if (method == 0):
         image = AddNoise(image, var=uniform(0.03, 0.15))
     elif (method == 1):
@@ -226,5 +245,7 @@ def RandomlyTransform(image):
     elif (method == 6):
         image = AddPattern(image, alpha=uniform(0.5, 0.9),
                            columns=randint(8, 16), dotwidth=randint(8, 40))
+    elif (method == 7):
+        image = Rain(image)
 
     return image
