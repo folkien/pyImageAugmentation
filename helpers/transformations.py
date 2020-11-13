@@ -146,6 +146,27 @@ def Vignette(image, alpha=1.2):
     return cv2.addWeighted(image, 1, patterns, alpha, 0)
 
 
+def __adjust_gamma(image, gamma=1.0):
+    ''' Method for change gamma on picture.'''
+    invGamma = 1.0 / gamma
+    table = np.array([((i / 255.0) ** invGamma) *
+                      255 for i in np.arange(0, 256)]).astype('uint8')
+    return cv2.LUT(image, table)
+
+
+def Night(image, desaturate=0.1, contrast=1.2, darkness=0.5):
+    '''Night effect image.'''
+    logging.debug('Night .')
+    # Desaturate
+    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    hsv[:, :, 1] = hsv[:, :, 1]*desaturate
+    # Increase contrast
+    image = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
+    image = cv2.addWeighted(image, contrast, image, 0, 0)
+    # Reduce brightness
+    return __adjust_gamma(image, 0.25)
+
+
 #''' Shape transformations.'''
 #''' --------------------------------------'''
 
@@ -248,7 +269,7 @@ def RandomlyTransform(image):
         image = Mosaic(image)
 
     # Addd color transformation
-    method = randint(0, 8)
+    method = randint(0, 9)
     if (method == 0):
         image = AddNoise(image, var=uniform(0.03, 0.15))
     elif (method == 1):
@@ -268,5 +289,7 @@ def RandomlyTransform(image):
         image = Rain(image)
     elif (method == 8):
         image = Vignette(image)
+    elif (method == 9):
+        image = Night(image)
 
     return image
