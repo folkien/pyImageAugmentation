@@ -167,6 +167,27 @@ def Night(image, desaturate=0.1, contrast=1.2, darkness=0.5):
     return __adjust_gamma(image, 0.25)
 
 
+def BlackBoxing(image, rows=6, cols=6):
+    ''' Randomly inserts blackout boxes.'''
+    from random import randint
+    logging.debug('Blackboxing.')
+    h, w = image.shape[0:2]
+    # Box dimensions
+    a = w/cols
+    b = h/rows
+
+    for x in range(rows):
+        x1 = int(x*a)
+        x2 = int((x+1)*a)
+        for y in range(cols):
+            y1 = int(y*b)
+            y2 = int((y+1)*b)
+            if (randint(0, 10) > 7):
+                image = cv2.rectangle(image, (x1, y1), (x2, y2), [0, 0, 0], -1)
+
+    return image
+
+
 #''' Shape transformations.'''
 #''' --------------------------------------'''
 
@@ -304,7 +325,7 @@ def RandomColorTransform(image):
     from random import uniform
     seed(dt.datetime.utcnow())
     # Addd color transformation
-    method = randint(0, 9)
+    method = randint(0, 10)
     if (method == 0):
         image = AddNoise(image, var=uniform(0.03, 0.15))
     elif (method == 1):
@@ -326,6 +347,8 @@ def RandomColorTransform(image):
         image = Vignette(image)
     elif (method == 9):
         image = Night(image)
+    elif (method == 10):
+        image = BlackBoxing(image)
 
     return image
 
