@@ -28,6 +28,9 @@ Renames all image files to SHA-1 format (sha1.jpeg/png) and creates new augmente
 - contrast
 - brightness
 - mirror and mosaic
+- night
+- vignette
+- rain
 
 and mixes of all these methods.
 
