@@ -3,11 +3,11 @@ import os
 import sys
 from helpers.hashing import IsSha1Name
 from helpers.files import GetFilename, RenameToSha1Filepath, GetNotExistingSha1Filepath, IsImageFile, CreateOutputDirectory
-from helpers.transformations import RandomlyTransform
+from helpers.transformations import RandomlyTransform, Mosaic4
+from random import randint
 import argparse
 import logging
 import cv2
-from os import walk
 
 
 # Arguments and config
@@ -43,26 +43,45 @@ excludes = ['.', '..', './', '.directory']
 f = []
 dirpath = args.input
 processedFiles = 0
-totalFiles = 0
-for f in os.listdir(dirpath):
-    # Process only image files and not exlcudes
-    if (f not in excludes) and (IsImageFile(f)):
-        # Rename only files which has not SHA-1 name
-        if (IsSha1Name(GetFilename(f)) == False):
-            f = RenameToSha1Filepath(f, dirpath)
+filenames = os.listdir(dirpath)
 
-        # If enabled then augmentate data
-        if (args.augmentation):
-            image = cv2.imread(dirpath+f)
-            image = RandomlyTransform(image)
-            newName, notused = GetNotExistingSha1Filepath(
-                f, dirpath)
-            outpath = dirpath+args.output+newName
-            cv2.imwrite(outpath, image)
-            logging.info('New augmented file %s.', outpath)
-            processedFiles += 1
+# Step 0 - filter only images
+filenames = [f for f in filenames if (f not in excludes) and (IsImageFile(f))]
+totalImages = len(filenames)
 
-    totalFiles += 1
+# Step 1 - augment current images and make new
+for f in filenames:
+    # Rename only files which has not SHA-1 name
+    if (IsSha1Name(GetFilename(f)) == False):
+        f = RenameToSha1Filepath(f, dirpath)
+
+    # If enabled then augmentate data
+    if (args.augmentation):
+        image = cv2.imread(dirpath+f)
+        image = RandomlyTransform(image)
+        newName, notused = GetNotExistingSha1Filepath(
+            f, dirpath)
+        outpath = dirpath+args.output+newName
+        cv2.imwrite(outpath, image)
+        logging.info('New augmented file %s.', outpath)
+        processedFiles += 1
+
+# Step 2 - make mosaic images
+if (len(filenames) >= 4):
+    n = int(len(filenames)*0.3)
+    for i in range(n):
+        im1 = cv2.imread(dirpath+filenames[randint(0, totalImages-1)])
+        im2 = cv2.imread(dirpath+filenames[randint(0, totalImages-1)])
+        im3 = cv2.imread(dirpath+filenames[randint(0, totalImages-1)])
+        im4 = cv2.imread(dirpath+filenames[randint(0, totalImages-1)])
+        image = Mosaic4(im1, im2, im3, im4)
+        newName, notused = GetNotExistingSha1Filepath(
+            filenames[randint(0, totalImages-1)], dirpath)
+        outpath = dirpath+args.output+newName
+        cv2.imwrite(outpath, image)
+        logging.info('New mosaic file %s.', outpath)
+        processedFiles += 1
+
 
 logging.debug('Processed files : %u.', processedFiles)
-logging.debug('Number of files : %u.', totalFiles)
+logging.debug('Number of files : %u.', len(filenames))

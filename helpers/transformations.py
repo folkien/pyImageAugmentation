@@ -204,6 +204,33 @@ def Mosaic(image):
     return cv2.resize(mosaic, (w, h), interpolation=cv2.INTER_AREA)
 
 
+def Mosaic4(im1, im2, im3, im4):
+    ''' Mosaic image.'''
+    logging.debug('Mosaic.')
+    h1, w1 = im1.shape[0:2]
+    h2, w2 = im2.shape[0:2]
+    h3, w3 = im3.shape[0:2]
+    h4, w4 = im4.shape[0:2]
+    # Create top
+    h = max(h1, h2)
+    im1 = cv2.resize(im1, (w1, h), interpolation=cv2.INTER_AREA)
+    im2 = cv2.resize(im2, (w2, h), interpolation=cv2.INTER_AREA)
+    top = cv2.hconcat([im1, im2])
+    # Create bottom
+    h = max(h3, h4)
+    im3 = cv2.resize(im3, (w3, h), interpolation=cv2.INTER_AREA)
+    im4 = cv2.resize(im4, (w4, h), interpolation=cv2.INTER_AREA)
+    bottom = cv2.hconcat([im3, im4])
+    # Create mosaic
+    ht, wt = top.shape[0:2]
+    hb, wb = bottom.shape[0:2]
+    w = max(wt, wb)
+    top = cv2.resize(top, (w, ht), interpolation=cv2.INTER_AREA)
+    bottom = cv2.resize(bottom, (w, hb), interpolation=cv2.INTER_AREA)
+    mosaic = cv2.vconcat([top, bottom])
+    return cv2.resize(mosaic, (w1, h1), interpolation=cv2.INTER_AREA)
+
+
 def Translate(image, x, y):
     ''' Translates image.'''
     logging.debug('Translated %u,%u.', x, y)
