@@ -127,6 +127,25 @@ def Rain(image):
     return image
 
 
+def Vignette(image, alpha=1.2):
+    ''' Adds vignette.'''
+    import math
+    logging.debug('Vignette.')
+    h, w, depth = image.shape
+    diag = math.sqrt(h*h+w*w)
+    x = int(w/2)
+    y = int(h/2)
+    patterns = np.full([h, w, 3], 0, dtype=np.uint8)
+
+    color = 255
+    for r in reversed(range(int(diag*0.15), int(diag*0.5))):
+        # Draw a circle with blue line borders of thickness of 2 px
+        patterns = cv2.circle(patterns, (x, y), r, [color, color, color], 2)
+        color -= 1
+
+    return cv2.addWeighted(image, 1, patterns, alpha, 0)
+
+
 #''' Shape transformations.'''
 #''' --------------------------------------'''
 
@@ -229,7 +248,7 @@ def RandomlyTransform(image):
         image = Mosaic(image)
 
     # Addd color transformation
-    method = randint(0, 7)
+    method = randint(0, 8)
     if (method == 0):
         image = AddNoise(image, var=uniform(0.03, 0.15))
     elif (method == 1):
@@ -247,5 +266,7 @@ def RandomlyTransform(image):
                            columns=randint(8, 16), dotwidth=randint(8, 40))
     elif (method == 7):
         image = Rain(image)
+    elif (method == 8):
+        image = Vignette(image)
 
     return image
