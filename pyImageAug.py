@@ -68,7 +68,7 @@ for f in filenames:
         processedFiles += 1
 
 # Step 2 - make mosaic images
-if (len(filenames) >= 4):
+if (args.augmentation) and (len(filenames) >= 4):
     n = int(len(filenames)*0.3)
     for i in range(n):
         im1 = cv2.imread(dirpath+filenames[randint(0, totalImages-1)])
