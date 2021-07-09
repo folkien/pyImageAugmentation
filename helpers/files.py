@@ -31,6 +31,18 @@ def IsImageFile(filepath):
     return GetExtension(filepath).lower() in ['.gif', '.png', '.jpg', '.jpeg', '.tiff']
 
 
+def FixPath(path):
+    '''
+        Fix path / character at the end.
+        Only works with directory paths.
+    '''
+    if (len(path) == 0):
+        return path
+    if (path[-1] == '/'):
+        return path
+    return path+'/'
+
+
 def GetNotExistingSha1Filepath(filename, dirpath):
     ''' Returns new SHA-1 Filepath.'''
     extension = GetExtension(filename).lower()

@@ -2,7 +2,7 @@
 import os
 import sys
 from helpers.hashing import IsSha1Name
-from helpers.files import GetFilename, RenameToSha1Filepath, GetNotExistingSha1Filepath, IsImageFile, CreateOutputDirectory
+from helpers.files import GetFilename, RenameToSha1Filepath, GetNotExistingSha1Filepath, IsImageFile, CreateOutputDirectory, FixPath
 from helpers.transformations import RandomlyTransform, Mosaic4,\
     RandomColorTransform
 from random import randint
@@ -54,7 +54,19 @@ totalImages = len(filenames)
 for f in filenames:
     # Rename only files which has not SHA-1 name
     if (IsSha1Name(GetFilename(f)) == False):
-        f = RenameToSha1Filepath(f, dirpath)
+        # Old image name
+        oldImageName = f
+        # Rename image file
+        newImageName = f = RenameToSha1Filepath(f, dirpath)
+        # Optional annotations filename old/new
+        oldTextFilename = GetFilename(oldImageName)+'.txt'
+        # Check also annotations file if exists?
+        if (os.path.exists(FixPath(dirpath)+oldTextFilename)):
+            # Optional annotations filename old/new
+            newTextFilename = GetFilename(newImageName)+'.txt'
+            # Rename
+            os.rename(FixPath(dirpath)+oldTextFilename,
+                      FixPath(dirpath)+newTextFilename)
 
     # If enabled then augmentate data
     if (args.augmentation):
