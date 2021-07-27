@@ -1,10 +1,12 @@
 #!/usr/bin/python3
 import os
 import sys
+import random
 from helpers.hashing import IsSha1Name
 from helpers.files import GetFilename, RenameToSha1Filepath, GetNotExistingSha1Filepath, IsImageFile, CreateOutputDirectory, FixPath
 from helpers.transformations import RandomlyTransform, Mosaic4,\
-    RandomColorTransform, RandomShapeTransform, ResizeToWidth
+    RandomColorTransform, RandomShapeTransform, ResizeToWidth,\
+    RandomDayWeatherTransform
 from random import randint
 import argparse
 import logging
@@ -23,6 +25,8 @@ parser.add_argument('-as', '--augumentShape', action='store_true',
                     required=False, help='Process extra image shape augmentation.')
 parser.add_argument('-ac', '--augumentColor', action='store_true',
                     required=False, help='Process extra image color augmentation.')
+parser.add_argument('-ad', '--augumentDayWeather', action='store_true',
+                    required=False, help='Process augmentation day/weather.')
 parser.add_argument('-mo', '--mosaic', action='store_true',
                     required=False, help='Process extra mosaic step.')
 parser.add_argument('-v', '--verbose', action='store_true',
@@ -56,6 +60,9 @@ filenames = os.listdir(dirpath)
 filenames = [f for f in filenames if (f not in excludes) and (IsImageFile(f))]
 totalImages = len(filenames)
 
+# Step 0.1 - random shuffle list (for big datasets it gives randomization)
+random.shuffle(filenames)
+
 # Step 1 - augment current images and make new
 for f in filenames:
     # Rename only files which has not SHA-1 name
@@ -75,8 +82,10 @@ for f in filenames:
                       FixPath(dirpath)+newTextFilename)
 
     # If enabled then augmentate data
-    if (args.augumentShape) or (args.augumentColor):
+    if (args.augumentShape) or (args.augumentColor) or (args.augumentDayWeather):
         image = cv2.imread(dirpath+f)
+        if (args.augumentDayWeather):
+            image = RandomDayWeatherTransform(image)
         if (args.augumentColor):
             image = RandomColorTransform(image)
         if (args.augumentShape):

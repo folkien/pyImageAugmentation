@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 import datetime as dt
 import logging
+from random import randint, uniform
 
 #''' Color transformations.'''
 #''' --------------------------------------'''
@@ -139,6 +140,29 @@ def Vignette(image, alpha=1.2):
 
     color = 255
     for r in reversed(range(int(diag*0.15), int(diag*0.5))):
+        # Draw a circle with blue line borders of thickness of 2 px
+        patterns = cv2.circle(patterns, (x, y), r, [color, color, color], 2)
+        color -= 1
+
+    return cv2.addWeighted(image, 1, patterns, alpha, 0)
+
+
+def Spotlight(image, alpha=1.2):
+    ''' Adds vignette.'''
+    import math
+    logging.debug('Spotlight.')
+    # Image properties
+    h, w, depth = image.shape
+    diag = math.sqrt(h*h+w*w)
+    # Spotlight location and properties
+    x = int(w/4) + randint(0, int(w/2))
+    y = int(h/4) + randint(0, int(h/2))
+    r = int(diag * uniform(0.20, 0.70))
+    # Pattern matrix
+    patterns = np.full([h, w, 3], 0, dtype=np.uint8)
+
+    color = 255
+    for r in range(0, r):
         # Draw a circle with blue line borders of thickness of 2 px
         patterns = cv2.circle(patterns, (x, y), r, [color, color, color], 2)
         color -= 1
@@ -346,7 +370,7 @@ def RandomColorTransform(image):
     from random import uniform
     seed(dt.datetime.utcnow())
     # Addd color transformation
-    method = randint(0, 10)
+    method = randint(0, 11)
     if (method == 0):
         image = AddNoise(image, var=uniform(0.03, 0.15))
     elif (method == 1):
@@ -370,6 +394,41 @@ def RandomColorTransform(image):
         image = Night(image)
     elif (method == 10):
         image = BlackBoxing(image)
+    elif (method == 11):
+        image = Spotlight(image)
+
+    return image
+
+
+def RandomDayWeatherTransform(image):
+    ''' Use random transformation for image augmentation.'''
+    from random import seed
+    from random import randint
+    from random import uniform
+    seed(dt.datetime.utcnow())
+
+    # Addd color transformation
+    method = randint(0, 11)
+    if (method == 0):
+        image = AddNoise(image, var=uniform(0.03, 0.15))
+    elif (method == 1):
+        image = Contrast(image, alpha=uniform(0.5, 1.9))
+    elif (method == 2):
+        image = Blur(image, size=randint(3, 15))
+    elif (method == 3):
+        image = Brightness(image, alpha=uniform(0.5, 1.7))
+    elif (method == 4):
+        image = Saturation(image, factor=uniform(0.5, 1.5))
+    elif (method == 5):
+        image = Hue(image, factor=uniform(0.5, 1.5))
+    elif (method == 6):
+        image = Rain(image)
+    elif (method == 7):
+        image = Vignette(image)
+    elif (method == 8):
+        image = Night(image)
+    elif (method == 9):
+        image = Spotlight(image)
 
     return image
 
