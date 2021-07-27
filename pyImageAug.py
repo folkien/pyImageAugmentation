@@ -4,7 +4,7 @@ import sys
 from helpers.hashing import IsSha1Name
 from helpers.files import GetFilename, RenameToSha1Filepath, GetNotExistingSha1Filepath, IsImageFile, CreateOutputDirectory, FixPath
 from helpers.transformations import RandomlyTransform, Mosaic4,\
-    RandomColorTransform
+    RandomColorTransform, RandomShapeTransform, ResizeToWidth
 from random import randint
 import argparse
 import logging
@@ -17,8 +17,14 @@ parser.add_argument('-i', '--input', type=str,
                     required=True, help='Input path')
 parser.add_argument('-o', '--output', type=str, nargs='?', const='', default='',
                     required=False, help='Output subdirectory name')
-parser.add_argument('-ar', '--augmentation', action='store_true',
-                    required=False, help='Process extra image augmentation.')
+parser.add_argument('-ow', '--maxImageWidth', type=int, nargs='?', const=1024, default=1024,
+                    required=False, help='Output image max width')
+parser.add_argument('-as', '--augumentShape', action='store_true',
+                    required=False, help='Process extra image shape augmentation.')
+parser.add_argument('-ac', '--augumentColor', action='store_true',
+                    required=False, help='Process extra image color augmentation.')
+parser.add_argument('-mo', '--mosaic', action='store_true',
+                    required=False, help='Process extra mosaic step.')
 parser.add_argument('-v', '--verbose', action='store_true',
                     required=False, help='Show verbose finded and processed data')
 args = parser.parse_args()
@@ -69,18 +75,26 @@ for f in filenames:
                       FixPath(dirpath)+newTextFilename)
 
     # If enabled then augmentate data
-    if (args.augmentation):
+    if (args.augumentShape) or (args.augumentColor):
         image = cv2.imread(dirpath+f)
-        image = RandomlyTransform(image)
+        if (args.augumentColor):
+            image = RandomColorTransform(image)
+        if (args.augumentShape):
+            image = RandomShapeTransform(image)
+
+        # Create new output file
         newName, notused = GetNotExistingSha1Filepath(
             f, dirpath)
         outpath = dirpath+args.output+newName
+        # Resize to YOLO max size
+        image = ResizeToWidth(image, args.maxImageWidth)
+        # Save
         cv2.imwrite(outpath, image)
         logging.info('New augmented file %s.', outpath)
         processedFiles += 1
 
 # Step 2 - make mosaic images
-if (args.augmentation) and (len(filenames) >= 4):
+if (args.mosaic) and (len(filenames) >= 4):
     n = int(len(filenames)*0.3)
     for i in range(n):
         im1 = cv2.imread(dirpath+filenames[randint(0, totalImages-1)])

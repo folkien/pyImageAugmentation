@@ -191,6 +191,27 @@ def BlackBoxing(image, rows=6, cols=6):
 #''' Shape transformations.'''
 #''' --------------------------------------'''
 
+def GetResizedHeightToWidth(width, height, maxWidth=1280):
+    ''' Returns resized values.'''
+    if (width > maxWidth):
+        ratio = maxWidth/width
+        height = int(ratio*height)-1
+        width = maxWidth
+
+    return width, height
+
+
+def ResizeToWidth(image, maxWidth=1024):
+    ''' Resize image with handling aspect ratio.'''
+    height, width = image.shape[:2]
+    # Resize only if broader than max width
+    if (width > maxWidth):
+        width, height = GetResizedHeightToWidth(width, height, maxWidth)
+        return cv2.resize(image, (width, height), interpolation=cv2.INTER_AREA)
+
+    # Otherwise return original image
+    return image
+
 
 def Rotate(image, angle):
     ''' Rotate image by angle.'''
