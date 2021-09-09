@@ -2,6 +2,7 @@
 import os
 import sys
 import random
+from shutil import copyfile
 from helpers.hashing import IsSha1Name
 from helpers.files import GetFilename, RenameToSha1Filepath, GetNotExistingSha1Filepath, IsImageFile, CreateOutputDirectory, FixPath
 from helpers.transformations import RandomlyTransform, Mosaic4,\
@@ -29,6 +30,8 @@ parser.add_argument('-ad', '--augumentDayWeather', action='store_true',
                     required=False, help='Process augmentation day/weather.')
 parser.add_argument('-mo', '--mosaic', action='store_true',
                     required=False, help='Process extra mosaic step.')
+parser.add_argument('-wa', '--withAnnotations', action='store_true',
+                    required=False, help='Copy also annotations from old files to new.')
 parser.add_argument('-v', '--verbose', action='store_true',
                     required=False, help='Show verbose finded and processed data')
 args = parser.parse_args()
@@ -101,6 +104,15 @@ for f in filenames:
         cv2.imwrite(outpath, image)
         logging.info('New augmented file %s.', outpath)
         processedFiles += 1
+        # Copy annotations if exists and copying enabled
+        oldTextFilename = GetFilename(dirpath+f)+'.txt'
+        if (args.withAnnotations) and (os.path.exists(oldTextFilename)):
+            # Optional annotations filename old/new
+            newTextFilename = GetFilename(outpath)+'.txt'
+            # Rename
+            copyfile(oldTextFilename,
+                     newTextFilename)
+
 
 # Step 2 - make mosaic images
 if (args.mosaic) and (len(filenames) >= 4):
