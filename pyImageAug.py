@@ -7,7 +7,7 @@ from helpers.hashing import IsSha1Name
 from helpers.files import GetFilename, RenameToSha1Filepath, GetNotExistingSha1Filepath, IsImageFile, CreateOutputDirectory, FixPath
 from helpers.transformations import RandomlyTransform, Mosaic4,\
     RandomColorTransform, RandomShapeTransform, ResizeToWidth,\
-    RandomDayWeatherTransform, TransformByName
+    RandomDayWeatherTransform, TransformByName, ResizeLetterBox
 from random import randint
 import argparse
 import logging
@@ -23,8 +23,10 @@ parser.add_argument('-i', '--input', type=str,
                     required=True, help='Input path')
 parser.add_argument('-o', '--output', type=str, nargs='?', const='', default='',
                     required=False, help='Output subdirectory name')
-parser.add_argument('-ow', '--maxImageWidth', type=int, nargs='?', const=1024, default=1024,
-                    required=False, help='Output image max width')
+parser.add_argument('-ow', '--maxImageWidth', type=int, nargs='?', const=640, default=640,
+                    required=False, help='Output image width / network width')
+parser.add_argument('-oh', '--maxImageHeight', type=int, nargs='?', const=352, default=352,
+                    required=False, help='Output image height / network height')
 parser.add_argument('-an', '--augmentByName', nargs='+', type=str, default=[],
                     required=False, help='Augment annotations by name.')
 parser.add_argument('-as', '--augumentShape', action='store_true',
@@ -122,12 +124,12 @@ for f in filenames:
 
     # If file is modified then save it
     if (isModified):
-        # Create new output file
+        # Create new filename
         newName, notused = GetNotExistingSha1Filepath(
             f, dirpath)
         outpath = dirpath+args.output+newName
-        # Resize to YOLO max size
-        image = ResizeToWidth(image, args.maxImageWidth)
+        # Resize letterbox to network dimensions
+        image = ResizeLetterBox(image, args.maxImageWidth, args.maxImageHeight)
         # Save
         cv2.imwrite(outpath, image)
         logging.info('New augmented file %s.', outpath)

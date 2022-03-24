@@ -475,6 +475,29 @@ def ResizeToWidth(image, maxWidth=1024):
     return image
 
 
+def GetFixedFitToBox(width, height, boxWidth, boxHeight):
+    ''' Returns values best fitted width/height
+    to box, with fixed image ratio holding.'''
+    ratio = min(boxWidth / width, boxHeight / height)
+    width = round(ratio * width)
+    height = round(ratio * height)
+
+    return width, height
+
+
+def ResizeLetterBox(image, boxWidth, boxHeight):
+    ''' Letterbox resize to box.'''
+    # Recalculate new width/height of frame with fixed aspect ratio
+    newWidth, newHeight = GetFixedFitToBox(image.shape[1], image.shape[0],
+                                           boxWidth, boxHeight)
+    # Resize image as newImage with padded zeroes
+    newImage = np.zeros([boxHeight, boxWidth, 3], dtype=np.uint8)
+    newImage[0:newHeight, 0:newWidth] = cv2.resize(image, (newWidth, newHeight),
+                                                   interpolation=cv2.INTER_NEAREST)
+
+    return newImage
+
+
 def FrameDetections(image, detections, minAreaRatio=0.30):
     ''' Frame to annotations.'''
     # Detections is none or empty
