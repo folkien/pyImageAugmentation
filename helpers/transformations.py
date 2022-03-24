@@ -789,6 +789,8 @@ def TransformByName(name, image, detections):
         return SegmentationGrabCut(image)
     if (name == 'framedets'):
         return FrameDetections(image, detections)
+    if (name == 'rotate'):
+        image = Rotate(image, angle=randint(3, 30))
 
     logging.warning('Unknown transformation %s.', name)
     return image
