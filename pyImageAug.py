@@ -7,11 +7,14 @@ from helpers.hashing import IsSha1Name
 from helpers.files import GetFilename, RenameToSha1Filepath, GetNotExistingSha1Filepath, IsImageFile, CreateOutputDirectory, FixPath
 from helpers.transformations import RandomlyTransform, Mosaic4,\
     RandomColorTransform, RandomShapeTransform, ResizeToWidth,\
-    RandomDayWeatherTransform
+    RandomDayWeatherTransform, TransformByName
 from random import randint
 import argparse
 import logging
 import cv2
+from helpers.textAnnotations import ReadAnnotations,\
+    ConvertAnnotationsToDetections
+from helpers.boxes import ToAbsolute
 
 
 # Arguments and config
@@ -22,6 +25,8 @@ parser.add_argument('-o', '--output', type=str, nargs='?', const='', default='',
                     required=False, help='Output subdirectory name')
 parser.add_argument('-ow', '--maxImageWidth', type=int, nargs='?', const=1024, default=1024,
                     required=False, help='Output image max width')
+parser.add_argument('-an', '--augmentByName', nargs='+', type=str, default=[],
+                    required=False, help='Augment annotations by name.')
 parser.add_argument('-as', '--augumentShape', action='store_true',
                     required=False, help='Process extra image shape augmentation.')
 parser.add_argument('-ac', '--augumentColor', action='store_true',
@@ -68,6 +73,13 @@ random.shuffle(filenames)
 
 # Step 1 - augment current images and make new
 for f in filenames:
+    # Set flag file is unmodified at beginning
+    isModified = False
+    # Read file text annotations if exists
+    # and convert them to detections.
+    annotations = ReadAnnotations(FixPath(dirpath)+f)
+    detections = ConvertAnnotationsToDetections(annotations)
+
     # Rename only files which has not SHA-1 name
     if (IsSha1Name(GetFilename(f)) == False):
         # Old image name
@@ -84,16 +96,32 @@ for f in filenames:
             os.rename(FixPath(dirpath)+oldTextFilename,
                       FixPath(dirpath)+newTextFilename)
 
-    # If enabled then augmentate data
-    if (args.augumentShape) or (args.augumentColor) or (args.augumentDayWeather):
+    # If enabled any augmentatation
+    if (args.augumentShape) or (args.augumentColor) or (args.augumentDayWeather) or (args.augmentByName):
+        # Read base image to memory
         image = cv2.imread(dirpath+f)
-        if (args.augumentDayWeather):
-            image = RandomDayWeatherTransform(image)
-        if (args.augumentColor):
-            image = RandomColorTransform(image)
-        if (args.augumentShape):
-            image = RandomShapeTransform(image)
+        # Recalculate bboxes in all detections to image pixel positions
+        detections = [(label, conf, ToAbsolute(
+            bbox, image.shape[1], image.shape[0])) for label, conf, bbox in detections]
 
+        # Augmentate it
+        # ----------------
+        if (args.augumentDayWeather):
+            image = RandomDayWeatherTransform(image, detections)
+        if (args.augumentColor):
+            image = RandomColorTransform(image, detections)
+        if (args.augumentShape):
+            image = RandomShapeTransform(image, detections)
+        if (args.augmentByName):
+            for name in args.augmentByName:
+                # Apply transform
+                image = TransformByName(name, image, detections)
+
+        # Set flag that file was modified
+        isModified = True
+
+    # If file is modified then save it
+    if (isModified):
         # Create new output file
         newName, notused = GetNotExistingSha1Filepath(
             f, dirpath)

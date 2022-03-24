@@ -43,6 +43,13 @@ def FixPath(path):
     return path+'/'
 
 
+def DeleteFile(path):
+    '''Delete annotations file.'''
+    if os.path.exists(path) or os.path.islink(path) or os.path.isdir(path):
+        os.remove(path)
+        logging.info('Deleted %s.', path)
+
+
 def GetNotExistingSha1Filepath(filename, dirpath):
     ''' Returns new SHA-1 Filepath.'''
     extension = GetExtension(filename).lower()
