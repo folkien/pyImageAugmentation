@@ -8,6 +8,7 @@ import numpy as np
 import datetime as dt
 import logging
 from random import randint, uniform
+from skimage.filters.thresholding import threshold_mean
 
 
 def GetContainingBox(box1, box2):
@@ -306,6 +307,17 @@ def BlurBox(image, box, size=10):
     image[y1:y2, x1:x2] = cv2.blur(image[y1:y2, x1:x2], ksize)
 
     return image
+
+
+def AutoThreshold(image):
+    ''' Segmentation image with threshold.'''
+    img_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    img = cv2.medianBlur(img_gray, 5)
+    result = cv2.adaptiveThreshold(img, 255,
+                                   cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                   cv2.THRESH_BINARY, 11, 2)
+    img_rgb = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
+    return img_rgb
 
 
 def Invert(image):
@@ -782,6 +794,8 @@ def TransformByName(name, image, detections):
         Apply transformation opencv function
         based on transformation name.
     '''
+    if (name == 'threshold'):
+        return AutoThreshold(image)
     if (name == 'invert'):
         return Invert(image)
     if (name == 'blur'):
