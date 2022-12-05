@@ -308,6 +308,12 @@ def BlurBox(image, box, size=10):
     return image
 
 
+def Invert(image):
+    '''Invert image.'''
+    logging.debug('Invert')
+    return cv2.bitwise_not(image)
+
+
 def Brightness(image, alpha=1):
     '''Brightness image.'''
     logging.debug('Brightness %2.2f.', alpha)
@@ -776,6 +782,8 @@ def TransformByName(name, image, detections):
         Apply transformation opencv function
         based on transformation name.
     '''
+    if (name == 'invert'):
+        return Invert(image)
     if (name == 'blur'):
         return Blur(image)
     if (name == 'contrast'):
