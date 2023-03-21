@@ -99,6 +99,7 @@ for f in filenames:
                       FixPath(dirpath)+newTextFilename)
 
     # If enabled any augmentatation
+    transform = None
     if (args.augumentShape) or (args.augumentColor) or (args.augumentDayWeather) or (args.augmentByName):
         # Read base image to memory
         image = cv2.imread(dirpath+f)
@@ -111,7 +112,8 @@ for f in filenames:
         if (args.augumentDayWeather):
             image = RandomDayWeatherTransform(image, detections)
         if (args.augumentColor):
-            image = RandomColorTransform(image, detections)
+            transform = RandomColorTransform()
+            image = transform.function(image)
         if (args.augumentShape):
             image = RandomShapeTransform(image, detections)
         if (args.augmentByName):
@@ -125,8 +127,9 @@ for f in filenames:
     # If file is modified then save it
     if (isModified):
         # Create new filename
-        newName, notused = GetNotExistingSha1Filepath(
-            f, dirpath)
+        newName, notused = GetNotExistingSha1Filepath(f, dirpath)
+        if (transform is not None):
+            newName = f"{transform.name}{newName}"
         outpath = dirpath+args.output+newName
         # Resize letterbox to network dimensions
         image = ResizeLetterBox(image, args.maxImageWidth, args.maxImageHeight)

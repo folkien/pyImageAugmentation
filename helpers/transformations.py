@@ -9,6 +9,7 @@ import datetime as dt
 import logging
 from random import randint, uniform
 from skimage.filters.thresholding import threshold_mean
+from collections import namedtuple
 
 
 def GetContainingBox(box1, box2):
@@ -696,8 +697,6 @@ def Deskew(image):
 def RandomShapeTransform(image, detections):
     ''' Use random transformation for image augmentation.'''
     from random import seed
-    from random import randint
-    from random import uniform
     seed(dt.datetime.utcnow())
 
     # Addd shape transformation
@@ -724,42 +723,32 @@ def RandomShapeTransform(image, detections):
 
     return image
 
+# Class with transform
+ImageTransform = namedtuple('ImageTransform', ['name', 'function'])
 
-def RandomColorTransform(image, detections):
+def RandomColorTransform() -> ImageTransform:
     ''' Use random transformation for image augmentation.'''
     from random import seed
-    from random import randint
-    from random import uniform
     seed(dt.datetime.utcnow())
     # Addd color transformation
     method = randint(0, 11)
-    if (method == 0):
-        image = AddNoise(image, var=uniform(0.03, 0.15))
-    elif (method == 1):
-        image = Contrast(image, alpha=uniform(0.5, 1.9))
-    elif (method == 2):
-        image = Blur(image, size=randint(3, 15))
-    elif (method == 3):
-        image = Brightness(image, alpha=uniform(0.5, 1.7))
-    elif (method == 4):
-        image = Saturation(image, factor=uniform(0.5, 1.5))
-    elif (method == 5):
-        image = Hue(image, factor=uniform(0.3, 1.7))
-    elif (method == 6):
-        image = AddPattern(image, alpha=uniform(0.5, 0.9),
-                           columns=randint(8, 16), dotwidth=randint(8, 40))
-    elif (method == 7):
-        image = Rain(image)
-    elif (method == 8):
-        image = Vignette(image)
-    elif (method == 9):
-        image = Night(image)
-    elif (method == 10):
-        image = BlackBoxing(image)
-    elif (method == 11):
-        image = Spotlight(image)
-
-    return image
+    methods = [
+        ImageTransform('Noise', lambda image : AddNoise(image, var=uniform(0.03, 0.15))),
+        ImageTransform('Contrast', lambda image: Contrast(image, alpha=uniform(0.5, 1.9))),
+        ImageTransform('Blur', lambda image: Blur(image, size=randint(3, 15))),
+        ImageTransform('Brightness', lambda image: Brightness(image, alpha=uniform(0.5, 1.7))),
+        ImageTransform('Saturation', lambda image: Saturation(image, factor=uniform(0.5, 1.5))),
+        ImageTransform('Hue', lambda image: Hue(image, factor=uniform(0.3, 1.7))),
+        ImageTransform('Pattern', lambda image: AddPattern(image, alpha=uniform(0.5, 0.9),
+                           columns=randint(8, 16), dotwidth=randint(8, 40))),
+        ImageTransform('Rain', lambda image: Rain(image)),
+        ImageTransform('Vignette', lambda image: Vignette(image)),
+        ImageTransform('Night', lambda image: Night(image)),
+        ImageTransform('BlackBoxes', lambda image: BlackBoxing(image)),
+        ImageTransform('Spotlight', lambda image: Spotlight(image)),
+    ] 
+    
+    return methods[method]
 
 
 def RandomDayWeatherTransform(image, detections):

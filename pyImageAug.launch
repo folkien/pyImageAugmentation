@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.python.pydev.debug.regularLaunchConfigurationType">
+    <booleanAttribute key="org.eclipse.debug.core.ATTR_FORCE_SYSTEM_CONSOLE_ENCODING" value="false"/>
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
         <listEntry value="/pyImageAugumentation/pyImageAug.py"/>
     </listAttribute>
@@ -8,7 +9,7 @@
     </listAttribute>
     <stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION" value="${workspace_loc:pyImageAugumentation/pyImageAug.py}"/>
     <stringAttribute key="org.eclipse.ui.externaltools.ATTR_OTHER_WORKING_DIRECTORY" value=""/>
-    <stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="-i test/  -o output -an framedets"/>
+    <stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="-i &quot;/media/CrucialExt240gb/AISP/BWS Wasilewski/ALPR/1L/2023-03-09/11/Configuration0/Test/&quot; -ac"/>
     <stringAttribute key="org.python.pydev.debug.ATTR_INTERPRETER" value="__default"/>
     <stringAttribute key="org.python.pydev.debug.ATTR_PROJECT" value="pyImageAugumentation"/>
     <stringAttribute key="process_factory_id" value="org.python.pydev.debug.processfactory.PyProcessFactory"/>
