@@ -744,7 +744,7 @@ def RandomColorTransform(image, detections):
     elif (method == 4):
         image = Saturation(image, factor=uniform(0.5, 1.5))
     elif (method == 5):
-        image = Hue(image, factor=uniform(0.5, 1.5))
+        image = Hue(image, factor=uniform(0.3, 1.7))
     elif (method == 6):
         image = AddPattern(image, alpha=uniform(0.5, 0.9),
                            columns=randint(8, 16), dotwidth=randint(8, 40))
