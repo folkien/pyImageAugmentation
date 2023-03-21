@@ -343,6 +343,7 @@ def Saturation(image, factor=1):
     '''Saturation image.'''
     logging.debug('Saturation %2.2f.', factor)
     hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    hsv[:, :, 1] = hsv[:, :, 1]+32*factor
     hsv[:, :, 1] = hsv[:, :, 1]*factor
     return cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
 
@@ -351,7 +352,15 @@ def Hue(image, factor=1):
     '''Hue image.'''
     logging.debug('Hue %2.2f.', factor)
     hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    hsv[:, :, 0] = hsv[:, :, 0]+32*factor
     hsv[:, :, 0] = hsv[:, :, 0]*factor
+    return cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
+
+def Temperature(image, degrees = 30):
+    '''Hue image.'''
+    logging.debug('Temperature %2.2f.', degrees)
+    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    hsv[:, :, 0] += np.uint8(degrees)
     return cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
 
 
@@ -731,14 +740,16 @@ def RandomColorTransform() -> ImageTransform:
     from random import seed
     seed(dt.datetime.utcnow())
     # Addd color transformation
-    method = randint(0, 11)
     methods = [
         ImageTransform('Noise', lambda image : AddNoise(image, var=uniform(0.03, 0.15))),
         ImageTransform('Contrast', lambda image: Contrast(image, alpha=uniform(0.5, 1.9))),
         ImageTransform('Blur', lambda image: Blur(image, size=randint(3, 15))),
-        ImageTransform('Brightness', lambda image: Brightness(image, alpha=uniform(0.5, 1.7))),
-        ImageTransform('Saturation', lambda image: Saturation(image, factor=uniform(0.5, 1.5))),
+        ImageTransform('Brightness', lambda image: Brightness(image, alpha=uniform(0.3, 1.7))),
+        ImageTransform('Saturation', lambda image: Saturation(image, factor=uniform(0.2, 1.8))),
+        ImageTransform('Invert', lambda image: Invert(image)),
+        ImageTransform('Threshold', lambda image: AutoThreshold(image)),
         ImageTransform('Hue', lambda image: Hue(image, factor=uniform(0.3, 1.7))),
+        ImageTransform('Temperature', lambda image: Temperature(image, degrees=uniform(-30, 30))),
         ImageTransform('Pattern', lambda image: AddPattern(image, alpha=uniform(0.5, 0.9),
                            columns=randint(8, 16), dotwidth=randint(8, 40))),
         ImageTransform('Rain', lambda image: Rain(image)),
@@ -748,7 +759,7 @@ def RandomColorTransform() -> ImageTransform:
         ImageTransform('Spotlight', lambda image: Spotlight(image)),
     ] 
     
-    return methods[method]
+    return methods[randint(0, len(methods)-1)]
 
 
 def RandomDayWeatherTransform(image, detections):
