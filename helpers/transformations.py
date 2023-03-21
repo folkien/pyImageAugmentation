@@ -368,19 +368,36 @@ def CLAHE(image, gridsize=8):
 def Rain(image):
     '''Blurred rain on image.'''
     from random import randint
-    logging.debug('Rain')
+
+    # Check : Invalid image
+    if (image is None):
+        return image
+    
+    # Check : Too small image
     h, w, depth = image.shape
+    if (h < 96) or (w < 96):
+        return image
+
+    # Calculate numer of drops and drop size.
     drops = randint(60, 100)
+    maxDropSize = min(h-1, w-1, 40)
+    minDropSize = min(maxDropSize,16)
+
     for i in range(drops):
-        size = randint(16, 40)
+        # Drop size
+        size = randint(minDropSize, maxDropSize)
+        
+        # Position of drop
         x = randint(size+1, w-size-1)
         y = randint(size+1, h-size-1)
+        
         # kernel
         ksize = (size-1, size-1)
         # Using cv2.blur() method
         image[y-size:y+size, x-size:x +
               size] = cv2.blur(image[y-size:y+size, x-size:x+size], ksize)
 
+    logging.debug('Rain')
     return image
 
 
