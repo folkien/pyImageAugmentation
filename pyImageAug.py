@@ -21,11 +21,11 @@ from helpers.boxes import ToAbsolute
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input', type=str,
                     required=True, help='Input path')
-parser.add_argument('-o', '--output', type=str, nargs='?', const='', default='',
+parser.add_argument('-o', '--output', type=str, nargs='?', const='generated', default='generated',
                     required=False, help='Output subdirectory name')
-parser.add_argument('-ow', '--maxImageWidth', type=int, nargs='?', const=640, default=640,
+parser.add_argument('-ow', '--maxImageWidth', type=int, nargs='?', const=1280, default=1280,
                     required=False, help='Output image width / network width')
-parser.add_argument('-oh', '--maxImageHeight', type=int, nargs='?', const=352, default=352,
+parser.add_argument('-oh', '--maxImageHeight', type=int, nargs='?', const=1280, default=1280,
                     required=False, help='Output image height / network height')
 parser.add_argument('-an', '--augmentByName', nargs='+', type=str, default=[],
                     required=False, help='Augment annotations by name.')
@@ -35,10 +35,6 @@ parser.add_argument('-ac', '--augumentColor', action='store_true',
                     required=False, help='Process extra image color augmentation.')
 parser.add_argument('-ad', '--augumentDayWeather', action='store_true',
                     required=False, help='Process augmentation day/weather.')
-parser.add_argument('-mo', '--mosaic', action='store_true',
-                    required=False, help='Process extra mosaic step.')
-parser.add_argument('-wa', '--withAnnotations', action='store_true',
-                    required=False, help='Copy also annotations from old files to new.')
 parser.add_argument('-v', '--verbose', action='store_true',
                     required=False, help='Show verbose finded and processed data')
 args = parser.parse_args()
@@ -137,32 +133,15 @@ for f in filenames:
         cv2.imwrite(outpath, image)
         logging.info('New augmented file %s.', outpath)
         processedFiles += 1
+
         # Copy annotations if exists and copying enabled
         oldTextFilename = GetFilename(dirpath+f)+'.txt'
-        if (args.withAnnotations) and (os.path.exists(oldTextFilename)):
+        if (os.path.exists(oldTextFilename)):
             # Optional annotations filename old/new
             newTextFilename = GetFilename(outpath)+'.txt'
             # Rename
             copyfile(oldTextFilename,
                      newTextFilename)
-
-
-# Step 2 - make mosaic images
-if (args.mosaic) and (len(filenames) >= 4):
-    n = int(len(filenames)*0.3)
-    for i in range(n):
-        im1 = cv2.imread(dirpath+filenames[randint(0, totalImages-1)])
-        im2 = cv2.imread(dirpath+filenames[randint(0, totalImages-1)])
-        im3 = cv2.imread(dirpath+filenames[randint(0, totalImages-1)])
-        im4 = cv2.imread(dirpath+filenames[randint(0, totalImages-1)])
-        image = Mosaic4(im1, im2, im3, im4)
-        image = RandomColorTransform(image)
-        newName, notused = GetNotExistingSha1Filepath(
-            filenames[randint(0, totalImages-1)], dirpath)
-        outpath = dirpath+args.output+newName
-        cv2.imwrite(outpath, image)
-        logging.info('New mosaic file %s.', outpath)
-        processedFiles += 1
 
 
 logging.debug('Processed files : %u.', processedFiles)
